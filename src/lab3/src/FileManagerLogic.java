@@ -80,7 +80,7 @@ public class FileManagerLogic {
         if (file.isFile()) {
           fileNames.append(file.getName()).append("\n");
         } else if (file.isDirectory()) {
-          fileNames.append("[").append(file.getName()).append("] (directory)\n");
+          fileNames.append(file.getName()).append(" (directory)\n");
         }
       }
     } else {
