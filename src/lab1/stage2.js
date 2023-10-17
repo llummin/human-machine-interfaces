@@ -1,6 +1,7 @@
 let symbolsToRemember = [];
 let symbolTimerInterval;
 let symbolTimeLeft = 5;
+let selectedSymbolCount = 0;
 
 function startSecondStage() {
     const numberList = document.getElementById("number-list");
@@ -34,7 +35,31 @@ function startSecondStage() {
         const symbols = ["*", "**", "***", "****", "*****", "******", "*******", "********", "*********", "**********"];
 
         symbols.forEach(symbol => {
-            symbolOptions.innerHTML += `<li><label><input type="checkbox" value="${symbol}"> ${symbol}</label></li>`;
+            const label = document.createElement("label");
+            label.classList.add("list-group-item");
+
+            const input = document.createElement("input");
+            input.classList.add("form-check-input", "me-1");
+            input.type = "checkbox";
+            input.value = symbol;
+
+            input.addEventListener("change", () => {
+                if (input.checked) {
+                    selectedSymbolCount++;
+                } else {
+                    selectedSymbolCount--;
+                }
+
+                if (selectedSymbolCount >= 5) {
+                    disableRemainingSymbolCheckboxes();
+                } else {
+                    enableAllSymbolCheckboxes();
+                }
+            });
+
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(` ${symbol}`));
+            symbolOptions.appendChild(label);
         });
 
         document.getElementById("symbol-list").style.display = "block";
@@ -44,11 +69,12 @@ function startSecondStage() {
 
 function startSymbolTimer() {
     const timerElement = document.getElementById("timer");
-    timerElement.textContent = "Время: 5 секунд";
+    timerElement.style.display = "block";
+    timerElement.textContent = "00:05";
     symbolTimeLeft = 5;
     symbolTimerInterval = setInterval(() => {
         symbolTimeLeft--;
-        timerElement.textContent = `Время: ${symbolTimeLeft} секунд`;
+        timerElement.textContent = `00:0${symbolTimeLeft}`;
         if (symbolTimeLeft <= 0) {
             stopSymbolTimer();
         }
@@ -59,11 +85,14 @@ function stopSymbolTimer() {
     clearInterval(symbolTimerInterval);
     symbolTimeLeft = 5;
     const timerElement = document.getElementById("timer");
-    timerElement.innerHTML = "Время: 5 секунд";
+    timerElement.textContent = "00:05";
+    timerElement.style.display = "none";
 }
 
 function checkSymbolAnswer() {
     const symbolList = document.getElementById("symbol-list");
+    const checkButton = document.getElementById("check-button");
+
     if (symbolList.style.display === "block") {
         const selectedSymbols = Array.from(document.querySelectorAll("#symbol-options input:checked"))
             .map(input => input.value);
@@ -73,17 +102,37 @@ function checkSymbolAnswer() {
             if (symbolsToRemember.includes(selectedSymbols[i])) {
                 correctCount++;
                 totalCorrectAnswers++;
+                console.log(totalCorrectAnswers);
             } else {
                 incorrectCount++;
                 totalIncorrectAnswers++;
+                console.log(incorrectCount);
             }
         }
         const resultContainer = document.getElementById("result-container");
         resultContainer.innerHTML = `Верных ответов: ${correctCount}<br>Неверных ответов: ${incorrectCount}`;
+        checkButton.disabled = true;
+
         setTimeout(() => {
+            checkButton.disabled = false;
+            checkButton.removeEventListener("click", checkSymbolAnswer);
             startThirdStage();
         }, 2000);
     }
+}
+
+function disableRemainingSymbolCheckboxes() {
+    const remainingCheckboxes = document.querySelectorAll("#symbol-options input:not(:checked)");
+    remainingCheckboxes.forEach((checkbox) => {
+        checkbox.disabled = true;
+    });
+}
+
+function enableAllSymbolCheckboxes() {
+    const allCheckboxes = document.querySelectorAll("#symbol-options input");
+    allCheckboxes.forEach((checkbox) => {
+        checkbox.disabled = false;
+    });
 }
 
 function generateRandomSymbols(count) {
