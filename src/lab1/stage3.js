@@ -3,35 +3,48 @@ let numberTimerInterval;
 let numberTimeLeft = 5;
 
 function startThirdStage() {
-    document.getElementById("number-list").style.display = "none";
-    document.getElementById("symbol-list").style.display = "none";
-    document.getElementById("start-button").style.display = "none";
-    document.getElementById("check-button").style.display = "none";
-    document.getElementById("result-container").innerHTML = "";
-    startNumberTimer();
-    numbersToRemember1 = generateRandomNumbers(5);
+    const numberList = document.getElementById("number-list");
+    const symbolList = document.getElementById("symbol-list");
+    const startButton = document.getElementById("start-button");
+    const checkButton = document.getElementById("check-button");
+    const resultContainer = document.getElementById("result-container");
     const gameContainer = document.getElementById("game-container");
-    gameContainer.innerHTML = numbersToRemember1.map(number => {
-        const textColor = numbersToRemember1.indexOf(number) < 3 ? "black" : "red";
-        return `<span style="color: ${textColor};">${number}</span>`;
-    }).join("<br>");
+    const numberOptions = document.getElementById("number-options");
+
+    resultContainer.innerHTML = "";
+    numberList.style.display = "none";
+    symbolList.style.display = "none";
+    startButton.style.display = "none";
+    checkButton.style.display = "none";
     gameContainer.style.display = "block";
+    startNumberTimer();
+
+    numbersToRemember1 = generateRandomNumbers(5);
+    gameContainer.innerHTML = numbersToRemember1
+        .map(number => {
+            const textColor = numbersToRemember1.indexOf(number) < 3 ? "black" : "red";
+            return `<span style="color: ${textColor};">${number}</span>`;
+        })
+        .join("<br>");
+
     setTimeout(() => {
         stopNumberTimer();
         gameContainer.style.display = "none";
-        document.getElementById("check-button").style.display = "block";
-        const numberOptions = document.getElementById("number-options");
+        checkButton.style.display = "block";
         numberOptions.innerHTML = "";
+
         for (let i = 0; i < 10; i++) {
             numberOptions.innerHTML += `<li><label><input type="checkbox" value="${i}"> ${i}</label></li>`;
         }
-        document.getElementById("number-list").style.display = "block";
-        document.getElementById("check-button").addEventListener("click", checkNumberSelection);
+
+        numberList.style.display = "block";
+        checkButton.addEventListener("click", checkNumberSelection);
     }, 5000);
 }
 
 function checkNumberSelection() {
-    if (document.getElementById("number-list").style.display === "block") {
+    const numberList = document.getElementById("number-list");
+    if (numberList.style.display === "block") {
         const selectedNumbers = Array.from(document.querySelectorAll("#number-options input:checked"))
             .map(input => parseInt(input.value));
         let correctCount = 0;
@@ -73,10 +86,10 @@ function stopNumberTimer() {
 }
 
 function generateRandomNumbers(count) {
-    const uniqueNumbers = new Set();
-    while (uniqueNumbers.size < count) {
+    const randomNumbers = new Set();
+    while (randomNumbers.size < count) {
         const randomDigit = Math.floor(Math.random() * 10);
-        uniqueNumbers.add(randomDigit);
+        randomNumbers.add(randomDigit);
     }
-    return Array.from(uniqueNumbers);
+    return Array.from(randomNumbers);
 }

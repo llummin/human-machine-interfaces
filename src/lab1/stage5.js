@@ -4,34 +4,42 @@ let numberSymbolTimeLeft5 = 5;
 let colorMap = new Map();
 
 function startFifthStage() {
-    document.getElementById("number-symbol-list").style.display = "none";
-    document.getElementById("symbol-list").style.display = "none";
-    document.getElementById("number-list").style.display = "none";
-    document.getElementById("start-button").style.display = "none";
-    document.getElementById("check-button").style.display = "none";
-    document.getElementById("result-container").innerHTML = "";
+    const numberSymbolList = document.getElementById("number-symbol-list");
+    const symbolList = document.getElementById("symbol-list");
+    const numberList = document.getElementById("number-list");
+    const startButton = document.getElementById("start-button");
+    const checkButton = document.getElementById("check-button");
+    const resultContainer = document.getElementById("result-container");
+    const gameContainer = document.getElementById("game-container");
+
+    numberSymbolList.style.display = "none";
+    symbolList.style.display = "none";
+    numberList.style.display = "none";
+    startButton.style.display = "none";
+    checkButton.style.display = "none";
+    resultContainer.innerHTML = "";
+
     startNumberSymbolTimer5();
     numbersAndSymbolsToRemember5 = generateUniqueRandomNumbersAndSymbols(5);
     const additionalRows = generateUniqueRandomNumbersAndSymbols(5, numbersAndSymbolsToRemember5);
-    const gameContainer = document.getElementById("game-container");
     const sortedRows = sortRows(numbersAndSymbolsToRemember5);
+
     gameContainer.innerHTML = sortedRows.map(item => {
         const [number, symbols] = item;
-        // Retrieve the colors for this combination or generate new ones if not yet assigned
         const textColor = colorMap.get(`${number}-${symbols}`) || generateRandomColor();
         const symbolColor = colorMap.get(`${number}-${symbols}`) || generateRandomSymbolColor();
-        // Store the colors for this combination
         colorMap.set(`${number}-${symbols}`, textColor);
         colorMap.set(`${number}-${symbols}`, symbolColor);
         return `<span style="color: ${textColor};">${number}</span> <span style="color: ${symbolColor};">${symbols}</span>`;
     }).join("<br>");
+
     gameContainer.style.display = "block";
+
     setTimeout(() => {
         stopNumberSymbolTimer5();
-        showNumberSymbolSelection(numbersAndSymbolsToRemember5, additionalRows); // Move this line inside the setTimeout
+        showNumberSymbolSelection(numbersAndSymbolsToRemember5, additionalRows);
     }, 5000);
 }
-
 
 function startNumberSymbolTimer5() {
     const timerElement = document.getElementById("timer");
@@ -84,29 +92,44 @@ function generateRandomSymbolColor() {
 }
 
 function showNumberSymbolSelection(rememberedRows, additionalRows) {
-    const selectionOptions = document.getElementById("number-symbol-options");
-    selectionOptions.innerHTML = "";
-    const allRows = rememberedRows.concat(additionalRows);
+    const options = document.getElementById("number-symbol-options");
+    options.innerHTML = "";
+    const allRows = [...rememberedRows, ...additionalRows];
     const sortedRows = sortRows(allRows);
-    for (const item of sortedRows) {
-        const [number, symbols] = item;
+    sortedRows.forEach(([number, symbols]) => {
         const textColor = generateRandomColor();
         const symbolColor = generateRandomSymbolColor();
-        selectionOptions.innerHTML += `<li><label><input type="checkbox" data-number="${number}" data-symbols="${symbols}"> <span style="color: ${textColor};">${number}</span> <span style="color: ${symbolColor};">${symbols}</span></label></li>`;
-    }
+        options.innerHTML += `
+            <li>
+                <label>
+                    <input type="checkbox" data-number="${number}" data-symbols="${symbols}">
+                    <span style="color: ${textColor};">${number}</span>
+                    <span style="color: ${symbolColor};">${symbols}</span>
+                </label>
+            </li>
+        `;
+    });
 
-    document.getElementById("number-list").style.display = "none";
-    document.getElementById("number-symbol-list").style.display = "block";
-    document.getElementById("check-button").style.display = "block";
-    document.getElementById("check-button").addEventListener("click", checkNumberSymbolSelection);
+    const numberList = document.getElementById("number-list");
+    const symbolList = document.getElementById("number-symbol-list");
+    const checkButton = document.getElementById("check-button");
+    numberList.style.display = "none";
+    symbolList.style.display = "block";
+    checkButton.style.display = "block";
+    checkButton.addEventListener("click", checkNumberSymbolSelection);
 }
 
 function sortRows(rows) {
-    return [...rows].sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
+    return [...rows].sort((rowA, rowB) => {
+        const [xA, yA] = rowA;
+        const [xB, yB] = rowB;
+        return xA - xB || yA.localeCompare(yB);
+    });
 }
 
 function checkNumberSymbolSelection() {
-    if (document.getElementById("number-symbol-list").style.display === "block") {
+    const numberSymbolList = document.getElementById("number-symbol-list");
+    if (numberSymbolList.style.display === "block") {
         const selectedItems = Array.from(document.querySelectorAll("#number-symbol-options input:checked"))
             .map(input => ({
                 number: input.getAttribute("data-number"),
@@ -129,7 +152,6 @@ function checkNumberSymbolSelection() {
         resultContainer.innerHTML = `Верных ответов: ${correctCount}<br>Неверных ответов: ${incorrectCount}`;
 
         setTimeout(() => {
-            const resultContainer = document.getElementById("result-container");
             resultContainer.innerHTML = `Всего верных ответов: ${totalCorrectAnswers}<br>Всего неверных ответов: ${totalIncorrectAnswers}`;
         }, 2000);
     }

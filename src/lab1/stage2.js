@@ -3,40 +3,52 @@ let symbolTimerInterval;
 let symbolTimeLeft = 5;
 
 function startSecondStage() {
-    document.getElementById("number-list").style.display = "none";
-    document.getElementById("symbol-list").style.display = "none";
-    document.getElementById("start-button").style.display = "none";
-    document.getElementById("check-button").style.display = "none";
-    document.getElementById("result-container").innerHTML = "";
-    startSymbolTimer();
-    symbolsToRemember = generateRandomSymbols(5);
+    const numberList = document.getElementById("number-list");
+    const symbolList = document.getElementById("symbol-list");
+    const startButton = document.getElementById("start-button");
+    const checkButton = document.getElementById("check-button");
+    const resultContainer = document.getElementById("result-container");
     const gameContainer = document.getElementById("game-container");
+
+    numberList.style.display = "none";
+    symbolList.style.display = "none";
+    startButton.style.display = "none";
+    checkButton.style.display = "none";
+    resultContainer.innerHTML = "";
+    startSymbolTimer();
+
+    symbolsToRemember = generateRandomSymbols(5);
     gameContainer.innerHTML = symbolsToRemember.join("<br>");
     gameContainer.style.display = "block";
-    document.getElementById("check-button").removeEventListener("click", checkSymbolAnswer);
+
+    checkButton.removeEventListener("click", checkSymbolAnswer);
+
     setTimeout(() => {
         stopSymbolTimer();
         gameContainer.style.display = "none";
-        document.getElementById("check-button").style.display = "block";
+        checkButton.style.display = "block";
+
         const symbolOptions = document.getElementById("symbol-options");
         symbolOptions.innerHTML = "";
+
         const symbols = ["*", "**", "***", "****", "*****", "******", "*******", "********", "*********", "**********"];
-        for (let i = 0; i < symbols.length; i++) {
-            symbolOptions.innerHTML += `<li><label><input type="checkbox" value="${symbols[i]}"> ${symbols[i]}</label></li>`;
-        }
+
+        symbols.forEach(symbol => {
+            symbolOptions.innerHTML += `<li><label><input type="checkbox" value="${symbol}"> ${symbol}</label></li>`;
+        });
+
         document.getElementById("symbol-list").style.display = "block";
-        document.getElementById("check-button").addEventListener("click", checkSymbolAnswer);
+        checkButton.addEventListener("click", checkSymbolAnswer);
     }, 5000);
 }
 
-
 function startSymbolTimer() {
     const timerElement = document.getElementById("timer");
-    timerElement.innerHTML = "Время: 5 секунд"; // Сбрасываем таймер
+    timerElement.textContent = "Время: 5 секунд";
     symbolTimeLeft = 5;
     symbolTimerInterval = setInterval(() => {
         symbolTimeLeft--;
-        timerElement.innerHTML = `Время: ${symbolTimeLeft} секунд`;
+        timerElement.textContent = `Время: ${symbolTimeLeft} секунд`;
         if (symbolTimeLeft <= 0) {
             stopSymbolTimer();
         }
@@ -46,11 +58,13 @@ function startSymbolTimer() {
 function stopSymbolTimer() {
     clearInterval(symbolTimerInterval);
     symbolTimeLeft = 5;
-    document.getElementById("timer").innerHTML = "Время: 5 секунд";
+    const timerElement = document.getElementById("timer");
+    timerElement.innerHTML = "Время: 5 секунд";
 }
 
 function checkSymbolAnswer() {
-    if (document.getElementById("symbol-list").style.display === "block") {
+    const symbolList = document.getElementById("symbol-list");
+    if (symbolList.style.display === "block") {
         const selectedSymbols = Array.from(document.querySelectorAll("#symbol-options input:checked"))
             .map(input => input.value);
         let correctCount = 0;
@@ -76,12 +90,15 @@ function generateRandomSymbols(count) {
     const symbols = ["*", "**", "***", "****", "*****", "******", "*******", "********", "*********", "**********"];
     const randomIndices = new Set();
     const randomSymbols = [];
+
     while (randomIndices.size < count) {
         const randomIndex = Math.floor(Math.random() * symbols.length);
+
         if (!randomIndices.has(randomIndex)) {
             randomIndices.add(randomIndex);
             randomSymbols.push(symbols[randomIndex]);
         }
     }
+
     return randomSymbols;
 }

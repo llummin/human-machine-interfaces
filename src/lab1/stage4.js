@@ -3,13 +3,18 @@ let symbolTimerInterval4;
 let symbolTimeLeft4 = 5;
 
 function startFourthStage() {
-    document.getElementById("number-list").style.display = "none";
-    document.getElementById("symbol-list").style.display = "none";
-    document.getElementById("start-button").style.display = "none";
-    document.getElementById("check-button").style.display = "none";
-    document.getElementById("result-container").innerHTML = "";
+    const numberList = document.getElementById("number-list");
+    const symbolList = document.getElementById("symbol-list");
+    const startButton = document.getElementById("start-button");
+    const checkButton = document.getElementById("check-button");
+    const resultContainer = document.getElementById("result-container");
 
-    // Generate symbols with the desired color based on the number of characters
+    numberList.style.display = "none";
+    symbolList.style.display = "none";
+    startButton.style.display = "none";
+    checkButton.style.display = "none";
+    resultContainer.innerHTML = "";
+
     const symbolsToRemember4 = generateRandomSymbols(5);
     const gameContainer = document.getElementById("game-container");
     gameContainer.innerHTML = symbolsToRemember4.map(symbol => {
@@ -24,7 +29,6 @@ function startFourthStage() {
         showSymbolSelection();
     }, 5000);
 }
-
 
 function startSymbolTimer4() {
     const timerElement = document.getElementById("timer");
@@ -48,10 +52,22 @@ function stopSymbolTimer4() {
 function showSymbolSelection() {
     const symbolOptions = document.getElementById("symbol-options");
     symbolOptions.innerHTML = "";
+
     const symbols = ["*", "**", "***", "****", "*****", "******", "*******", "********", "*********", "**********"];
-    for (let i = 0; i < symbols.length; i++) {
-        symbolOptions.innerHTML += `<li><label><input type="checkbox" value="${symbols[i]}"> ${symbols[i]}</label></li>`;
-    }
+
+    symbols.forEach(symbol => {
+        const listItem = document.createElement("li");
+        const label = document.createElement("label");
+        const input = document.createElement("input");
+        const text = document.createTextNode(symbol);
+
+        input.type = "checkbox";
+        input.value = symbol;
+        label.appendChild(input);
+        label.appendChild(text);
+        listItem.appendChild(label);
+        symbolOptions.appendChild(listItem);
+    });
 
     document.getElementById("symbol-list").style.display = "block";
     document.getElementById("check-button").style.display = "block";
@@ -59,7 +75,8 @@ function showSymbolSelection() {
 }
 
 function checkSymbolSelection() {
-    if (document.getElementById("symbol-list").style.display === "block") {
+    const symbolList = document.getElementById("symbol-list");
+    if (symbolList.style.display === "block") {
         const selectedSymbols = Array.from(document.querySelectorAll("#symbol-options input:checked"))
             .map(input => input.value);
         let correctCount = 0;
