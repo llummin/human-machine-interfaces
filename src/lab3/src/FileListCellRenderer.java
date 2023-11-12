@@ -20,8 +20,8 @@ class FileListCellRenderer extends DefaultListCellRenderer {
       boolean isSelected,
       boolean cellHasFocus
   ) {
-    JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
-        cellHasFocus);
+    JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
     if (value instanceof String fileName) {
       if (fileName.endsWith("(directory)")) {
         label.setIcon(folderIcon);
@@ -30,6 +30,7 @@ class FileListCellRenderer extends DefaultListCellRenderer {
         label.setIcon(null);
       }
     }
+
     return label;
   }
 }

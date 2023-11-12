@@ -90,7 +90,6 @@ public class FileManager {
     return filesRenamed;
   }
 
-
   private static void printHelp() {
     System.out.println("Available commands:");
     System.out.println("cd \"path\" - Change to a different directory.");
