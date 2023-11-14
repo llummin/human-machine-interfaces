@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -36,10 +35,7 @@ public class FileManagerGUI {
     textArea.setEditable(false);
 
     commandField = new JTextField();
-    commandField.addActionListener(e -> {
-      executeCommand(commandField.getText());
-      commandField.setText("");
-    });
+    commandField.addActionListener(e -> commandField.setText(""));
 
     currentPathLabel = new JLabel();
     updateCurrentPathLabel();
@@ -56,7 +52,6 @@ public class FileManagerGUI {
     JScrollPane fileListScrollPane = new JScrollPane(fileList);
     fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-    // Добавление слушателя для ПКМ
     fileList.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -160,28 +155,41 @@ public class FileManagerGUI {
     dialog.setLayout(new FlowLayout());
 
     JTextField renameField = new JTextField(20);
+    JTextField extensionField = new JTextField(5); // Added extension input field
     JButton renameButton = new JButton("Rename");
 
     renameButton.addActionListener(e -> {
       String newName = renameField.getText();
-      for (int index : fileList.getSelectedIndices()) {
-        String selectedFile = listModel.get(index);
-        if (selectedFile.endsWith("(directory)")) {
-          continue;
-        }
-        String currentName = getCurrentName(selectedFile);
-        String newPath = getNewPath(currentName, newName, selectedFile);
-        fileManager.renameFileName(currentName, newPath);
+      String extension = extensionField.getText();
+      if (!newName.isEmpty()) {
+        renameSelectedFiles(newName, extension);
+        dialog.dispose();
+        refreshFileList();
+        selectedFiles = null;
       }
-      dialog.dispose();
-      refreshFileList();
-      selectedFiles = null;
     });
 
     dialog.add(renameField);
+    dialog.add(new JLabel("."));
+    dialog.add(extensionField);
     dialog.add(renameButton);
     dialog.setVisible(true);
   }
+
+  private void renameSelectedFiles(String newName, String extension) {
+    int count = 0;
+    for (int index : fileList.getSelectedIndices()) {
+      String selectedFile = listModel.get(index);
+      if (selectedFile.endsWith("(directory)")) {
+        continue;
+      }
+      String currentName = getCurrentName(selectedFile);
+      String newPath = newName + (count > 0 ? " (" + count + ")" : "") + "." + extension;
+      fileManager.renameFileName(currentName, newPath);
+      count++;
+    }
+  }
+
 
   private String getCurrentName(String selectedFile) {
     if (selectedFile.endsWith("(directory)")) {
@@ -194,11 +202,6 @@ public class FileManagerGUI {
         return selectedFile;
       }
     }
-  }
-
-  private String getNewPath(String currentName, String newName, String selectedFile) {
-    String extension = selectedFile.endsWith("(directory)") ? "(directory)" : "";
-    return currentName + " (" + newName + ")" + extension;
   }
 
   private void refreshFileList() {
@@ -222,36 +225,6 @@ public class FileManagerGUI {
     currentPathLabel.setText(currentPath);
   }
 
-  private void executeCommand(String command) {
-    String[] parts = command.split(" ");
-
-    HashMap<String, Runnable> commandMap = new HashMap<>();
-    commandMap.put("cd", () -> {
-      if (parts.length == 2) {
-        fileManager.changeDirectory(parts[1]);
-        refreshFileList();
-      }
-    });
-    commandMap.put("rename", () -> {
-      if (parts.length == 3) {
-        fileManager.renameFileName(parts[1], parts[2]);
-        refreshFileList();
-      }
-    });
-    commandMap.put("rename_all", () -> {
-      if (parts.length == 3) {
-        fileManager.renameAllFileNames(parts[1].replace("*", ""), parts[2]);
-        refreshFileList();
-      }
-    });
-    commandMap.put("help", this::printHelp);
-    commandMap.put("dir", this::refreshFileList);
-
-    Runnable commandAction = commandMap.get(command);
-    if (commandAction != null) {
-      commandAction.run();
-    }
-  }
 
   private void printHelp() {
     String helpMessage = """
