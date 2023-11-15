@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -202,12 +203,19 @@ public class FileManagerGUI {
         continue;
       }
       String currentName = getCurrentName(selectedFile);
+      if (extension.isEmpty()) {
+        showErrorDialog();
+        return;
+      }
       String newPath = newName + (count > 0 ? " (" + count + ")" : "") + "." + extension;
       fileManager.renameFileName(currentName, newPath);
       count++;
     }
   }
 
+  private void showErrorDialog() {
+    JOptionPane.showMessageDialog(frame, "Please provide a file extension.", "Error", JOptionPane.ERROR_MESSAGE);
+  }
 
   private String getCurrentName(String selectedFile) {
     if (selectedFile.endsWith("(directory)")) {
@@ -246,10 +254,18 @@ public class FileManagerGUI {
 
   private void printHelp() {
     String helpMessage = """
-        Available commands:
-        cd "path" - Change to a different directory.
-        rename "path" "new_name" - Change the name of a specific file.
-        rename_all "extension" "new_name" - Change the names of groups of files in the current directory.
+        Здравствуйте!
+        - Чтобы вернуться назад, вам необходимо нажать кнопку "Back".
+        - Чтобы изменить файл, вам необходимо выполнить следующие действия:
+            1. Нажать на файл при помощи ЛКМ.
+            2. Зажать клавишу Ctrl.
+            3. Нажать на файл при помощи ПКМ.
+            4. Нажать на всплывающую клавишу "Rename".
+            5. Введите новое имя файла.
+        - Чтобы изменить группу файлов, вам необходимо выполнить следующие действия:
+            1. Выберите файлы для изменения с зажатой клавишей Ctrl, используя ЛКМ.
+            2. Нажать на всплывающую клавишу "Rename".
+            3. Введите новое имя файлов.
         """;
 
     JTextArea helpTextArea = new JTextArea(helpMessage);
